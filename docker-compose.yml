@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+    ports:
+      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+    volumes:
+      - './my.cnf:/etc/mysql/my.cnf'
+      - db:/var/lib/mysql
+    command: [--ssl=0]
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_USER: $MYSQLDB_USER
+      PMA_PASSWORD: $MYSQLDB_ROOT_PASSWORD
+    restart: always
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+    depends_on:
+      - db
+    volumes:
+      - ./.:/usr/src/app
+      - ./node_modules:/usr/src/app/node_modules
+    env_file:
+      - .env
+
+  nginx:
+    container_name: nginx
+    build:
+      context: docker/.
+      target: nginx
+    depends_on:
+      - backend
+    restart: always
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  db:
