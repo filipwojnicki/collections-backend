@@ -51,9 +51,5 @@ services:
         protocol: tcp
         mode: host
 
-networks:
-  backend:
-    driver: bridge
-
 volumes:
   db:
