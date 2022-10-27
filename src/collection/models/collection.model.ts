@@ -5,7 +5,13 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  ForeignKey,
+  BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
+import { User } from '../../users/model/user.model';
+import { Item } from './item.model';
+import { CustomField } from './customField.model';
 
 @Table({ charset: 'utf8mb4' })
 export class Collection extends Model<Collection> {
@@ -43,6 +49,19 @@ export class Collection extends Model<Collection> {
     defaultValue: null,
   })
   image: string;
+
+  @ForeignKey(() => User)
+  @Column
+  userId: number;
+
+  @BelongsTo(() => User)
+  user: User;
+
+  @HasMany(() => Item)
+  items: Item[];
+
+  @HasMany(() => CustomField)
+  customFields: CustomField[];
 
   @CreatedAt public createdAt: Date;
 

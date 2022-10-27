@@ -13,12 +13,20 @@ import { TagDto } from '../DTO/tag.dto';
 
 import { Item } from '../models/item.model';
 import { ItemDto } from '../DTO/item.dto';
+import { User } from 'src/users/model/user.model';
 
 @Injectable()
 export class CollectionService {
   constructor(
     @InjectModel(Collection)
     private readonly collectionModel: typeof Collection,
+
+    @InjectModel(Item)
+    private readonly itemModel: typeof Item,
+
+    @InjectModel(CustomField)
+    private readonly customFieldModel: typeof CustomField,
+
     private readonly sequelize: Sequelize,
   ) {}
 
@@ -114,5 +122,57 @@ export class CollectionService {
     }
 
     return true;
+  }
+
+  async getLatestItems() {
+    const items = await this.itemModel.findAll({
+      order: [['createdAt', 'DESC']],
+    });
+
+    const collections = await this.collectionModel.findAll({
+      attributes: ['id', 'name'],
+      include: [
+        { model: CustomField, attributes: { exclude: [] } },
+        { model: User, attributes: ['id', 'name'] },
+      ],
+      where: {
+        id: items.map((item) => item.collectionId),
+      },
+    });
+
+    return { items, collections };
+  }
+
+  async getCollectionByIds(ids: any[]) {
+    return this.collectionModel.findAll({
+      where: { id: ids },
+    });
+  }
+
+  async getLargestCollection() {
+    const itemsCount = await this.itemModel.findAll({
+      group: ['collectionId'],
+      attributes: [
+        'collectionId',
+        [Sequelize.fn('COUNT', 'collectionId'), 'ItemsCountByCollection'],
+      ],
+      order: [[Sequelize.literal('ItemsCountByCollection'), 'DESC']],
+      limit: 5,
+      raw: true,
+    });
+
+    const collections = await this.getCollectionByIds(
+      itemsCount.map((item) => item.collectionId),
+    );
+
+    return itemsCount.map((item) => {
+      const collection = collections.find(
+        (collection) => collection.id === item.collectionId,
+      );
+
+      const { name } = collection;
+
+      return { ...item, name };
+    });
   }
 }

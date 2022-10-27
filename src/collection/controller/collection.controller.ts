@@ -38,4 +38,14 @@ export class CollectionController {
   addItem(@Body() itemDto: ItemDto) {
     return this.collectionService.createItem(itemDto);
   }
+
+  @Get('/getLatestItems')
+  getLatestItems() {
+    return this.collectionService.getLatestItems();
+  }
+
+  @Get('/getLargest')
+  getLargestCollection() {
+    return this.collectionService.getLargestCollection();
+  }
 }
