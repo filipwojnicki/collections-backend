@@ -8,7 +8,7 @@ import {
 } from 'sequelize-typescript';
 
 @Table({ charset: 'utf8mb4' })
-export class User extends Model {
+export class User extends Model<User> {
   @Column({
     allowNull: false,
     autoIncrement: true,
@@ -43,7 +43,7 @@ export class User extends Model {
     allowNull: false,
     defaultValue: 0,
   })
-  role: string;
+  role: number;
 
   @CreatedAt public createdAt: Date;
 

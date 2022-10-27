@@ -4,8 +4,10 @@ RUN mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY ["package.json", "package-lock.json", "./"]
 
-RUN npm install
+RUN npm ci
+
+COPY . .
 
 CMD ["npm", "run", "start:dev"]
