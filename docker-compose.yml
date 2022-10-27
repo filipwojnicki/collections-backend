@@ -37,6 +37,20 @@ services:
     env_file:
       - .env
 
+  frontend: #
+    container_name: frontend #
+    build: #
+      context: frontend/. #
+    depends_on: #
+      - backend #
+    volumes: #
+      - ./frontend/.:/usr/src/app #
+      - ./frontend/node_modules:/usr/src/app/node_modules #
+    ports: #
+      - 127.0.0.1:3000:3000 #
+    env_file: #
+      - .env #
+
   nginx:
     container_name: nginx
     build:
@@ -44,6 +58,7 @@ services:
       target: nginx
     depends_on:
       - backend
+      - frontend
     restart: always
     ports:
       - target: 80
