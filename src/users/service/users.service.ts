@@ -30,6 +30,10 @@ export class UsersService {
     return this.userModel.findOne({ where: { id } });
   }
 
+  getRoleByUserId(id: number) {
+    return this.userModel.findOne({ where: { id }, attributes: ['role'] });
+  }
+
   findOneByEmail(email: string) {
     return this.userModel.findOne({ raw: true, where: { email } });
   }
